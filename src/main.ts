@@ -9,7 +9,10 @@ import {
   registerDataSourceKeys,
 } from './plugins/data-provider'
 import { DataSourceSwitcherPlugin } from './plugins/data-source-switcher'
+import { UplinkPanelPlugin } from './plugins/uplink-panel'
+import { RocketTelemetryTreePlugin } from './plugins/rocket-telemetry-tree'
 import { FakeDataGenerator } from './sources/fake-data-generator'
+import { RocketTelemetryGenerator } from './sources/rocket-telemetry'
 import { getBackendType } from './db/get-backend'
 
 // service worker for PWA
@@ -60,15 +63,19 @@ openmct.install(
 
 openmct.install(DataProviderPlugin)
 openmct.install(DataSourceSwitcherPlugin)
+openmct.install(UplinkPanelPlugin)
 
 // register layouts here
 openmct.install(AvionicsLayoutPlugin)
+openmct.install(RocketTelemetryTreePlugin)
 
 // register data sources here
 if (getBackendType() === 'duckdb') {
   registerDataSource(new FakeDataGenerator())
+  registerDataSource(new RocketTelemetryGenerator())
 } else {
   registerDataSourceKeys(FakeDataGenerator.allKeys())
+  registerDataSourceKeys(RocketTelemetryGenerator.allKeys())
 }
 
 openmct.time.setTimeSystem('utc', {

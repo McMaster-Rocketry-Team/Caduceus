@@ -3,6 +3,7 @@ import {
   VL_BATTERY_RECEIVED,
 } from '../sources/fake-data-generator'
 import { NAMESPACE } from '../plugins/data-provider'
+import { UPLINK_PANEL_TYPE } from '../plugins/uplink-panel'
 import type { OpenMCT } from 'openmct'
 
 export const AVIONICS_NAMESPACE = 'avionics'
@@ -10,12 +11,14 @@ export const AVIONICS_NAMESPACE = 'avionics'
 const OVERLAY_PLOT_KEY = 'vl_battery_overlay'
 const LAYOUT_KEY = 'layout'
 export const DATA_SOURCE_SWITCHER_KEY = 'data-source-switcher'
+export const UPLINK_PANEL_KEY = 'uplink-panel'
 
 // Stable IDs for containers and frames so OpenMCT doesn't recreate them on each load
 const CONTAINER_TOP_ID = 'c0000000-0000-0000-0000-000000000001'
 const CONTAINER_BOTTOM_ID = 'c0000000-0000-0000-0000-000000000002'
 const FRAME_PLOT_ID = 'f0000000-0000-0000-0000-000000000001'
 const FRAME_SWITCHER_ID = 'f0000000-0000-0000-0000-000000000002'
+const FRAME_UPLINK_ID = 'f0000000-0000-0000-0000-000000000003'
 
 function makeOverlayPlot() {
   return {
@@ -63,6 +66,7 @@ function makeLayout() {
     location: 'ROOT',
     composition: [
       { namespace: AVIONICS_NAMESPACE, key: OVERLAY_PLOT_KEY },
+      { namespace: AVIONICS_NAMESPACE, key: UPLINK_PANEL_KEY },
       { namespace: AVIONICS_NAMESPACE, key: DATA_SOURCE_SWITCHER_KEY },
     ],
     configuration: {
@@ -70,7 +74,7 @@ function makeLayout() {
       containers: [
         {
           id: CONTAINER_TOP_ID,
-          size: 80,
+          size: 55,
           frames: [
             {
               id: FRAME_PLOT_ID,
@@ -84,8 +88,16 @@ function makeLayout() {
         },
         {
           id: CONTAINER_BOTTOM_ID,
-          size: 20,
+          size: 45,
           frames: [
+            {
+              id: FRAME_UPLINK_ID,
+              domainObjectIdentifier: {
+                namespace: AVIONICS_NAMESPACE,
+                key: UPLINK_PANEL_KEY,
+              },
+              noFrame: false,
+            },
             {
               id: FRAME_SWITCHER_ID,
               domainObjectIdentifier: {
@@ -123,6 +135,15 @@ export function AvionicsLayoutPlugin(openmct: OpenMCT) {
           identifier,
           name: 'Data Source Switcher',
           type: `${NAMESPACE}.data-source-switcher`,
+          location: `${AVIONICS_NAMESPACE}:${LAYOUT_KEY}`,
+        })
+      }
+
+      if (identifier.key === UPLINK_PANEL_KEY) {
+        return Promise.resolve({
+          identifier,
+          name: 'Send Uplink',
+          type: UPLINK_PANEL_TYPE,
           location: `${AVIONICS_NAMESPACE}:${LAYOUT_KEY}`,
         })
       }

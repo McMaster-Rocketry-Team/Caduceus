@@ -9,6 +9,12 @@ export type Datum = {
   timestampMs: number
 }
 
+/** A single value→label mapping for an `enum`-formatted telemetry signal. */
+export type Enumeration = {
+  value: number
+  string: string
+}
+
 export type DataKey = {
   key: string
   /**
@@ -16,6 +22,21 @@ export type DataKey = {
    * 0 disables gap detection.
    */
   gapThreshold: number
+  /** Human-readable label shown in the UI. Defaults to {@link key}. */
+  name?: string
+  /** Engineering unit string, e.g. `"V"`, `"m"`, `"C"`, `"m/s"`. */
+  unit?: string
+  /**
+   * OpenMCT formatter id or printf-style format string.
+   * Examples: `"float"` (default), `"enum"`, `"%.2f"`, `"%.1f"`, `"%.0f"`.
+   */
+  format?: string
+  /** Expected lower bound — drives plot autoscaling / gauges. */
+  min?: number
+  /** Expected upper bound — drives plot autoscaling / gauges. */
+  max?: number
+  /** Value→label mappings for `format: "enum"` signals. */
+  enumerations?: Enumeration[]
 }
 
 export interface DataSource {
@@ -39,16 +60,35 @@ type OpenMCTDatum = {
   value: number
 }
 
+/** One entry in a domain object's `telemetry.values[]` array. */
+type TelemetryValue = {
+  key: string
+  name: string
+  format: string
+  hints: { range?: number; domain?: number }
+  gapThreshold?: number
+  unit?: string
+  min?: number
+  max?: number
+  enumerations?: Enumeration[]
+}
+
 /** Build per-key telemetry value descriptors, embedding gapThreshold on the range value. */
-function telemetryValues(dataKey: DataKey) {
+function telemetryValues(dataKey: DataKey): TelemetryValue[] {
+  const value: TelemetryValue = {
+    key: 'value',
+    name: dataKey.name ?? 'Value',
+    format: dataKey.format ?? 'float',
+    hints: { range: 1 },
+    gapThreshold: dataKey.gapThreshold,
+  }
+  if (dataKey.unit !== undefined) value.unit = dataKey.unit
+  if (dataKey.min !== undefined) value.min = dataKey.min
+  if (dataKey.max !== undefined) value.max = dataKey.max
+  if (dataKey.enumerations !== undefined) value.enumerations = dataKey.enumerations
+
   return [
-    {
-      key: 'value',
-      name: 'Value',
-      format: 'float',
-      hints: { range: 1 },
-      gapThreshold: dataKey.gapThreshold,
-    },
+    value,
     { key: 'utc', name: 'Timestamp', format: 'utc', hints: { domain: 1 } },
   ]
 }
@@ -120,7 +160,7 @@ export function DataProviderPlugin(openmct: OpenMCT) {
       if (!dataKey) return Promise.resolve(undefined)
       return Promise.resolve({
         identifier,
-        name: identifier.key,
+        name: dataKey.name ?? identifier.key,
         type: `${NAMESPACE}.telemetry`,
         location: `${NAMESPACE}:root`,
         telemetry: { values: telemetryValues(dataKey) },

@@ -13,6 +13,7 @@ import {
 import { getAllData, clearAllData } from '../db/duckdb'
 import { NAMESPACE } from './data-provider'
 import { mountReactInShadow } from './react-utils'
+import { SectionLabel, ActionButton } from './ui'
 import type { OpenMCT } from 'openmct'
 
 const LAST_UPLOAD_KEY = 'nick-last-upload-ts'
@@ -45,43 +46,6 @@ type SaveState =
 type SwitchState =
   | { status: 'idle' }
   | { status: 'running'; target: BackendType }
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-gray-400 dark:text-gray-500 mb-1.5">
-      {children}
-    </p>
-  )
-}
-
-function ActionButton({
-  children,
-  onClick,
-  disabled,
-  variant = 'default',
-}: {
-  children: React.ReactNode
-  onClick?: () => void
-  disabled?: boolean
-  variant?: 'default' | 'primary'
-}) {
-  const base =
-    'rounded px-3 py-1 text-[11px] cursor-pointer border transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-  const styles =
-    variant === 'primary'
-      ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700 hover:border-blue-700'
-      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400'
-
-  return (
-    <button
-      className={`${base} ${styles}`}
-      onClick={onClick}
-      disabled={disabled}
-    >
-      {children}
-    </button>
-  )
-}
 
 function BackendButton({
   label,
