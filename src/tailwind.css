@@ -5,3 +5,20 @@
 @theme {
   --font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
+
+/* Change-flash for the Ground Station Downlink console: a field's value
+   background flashes orange (Tailwind orange-500) then fades, mirroring the
+   previous CLI's FieldWidget highlight. Re-triggered by remounting the span
+   with a changing React key. */
+@keyframes nick-flash {
+  from {
+    background-color: rgb(249 115 22 / 0.85);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+.nick-flash {
+  animation: nick-flash 300ms ease-out;
+  border-radius: 3px;
+}

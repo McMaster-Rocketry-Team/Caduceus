@@ -12,6 +12,7 @@
  * backend stores one scalar series per key.
  */
 import type { DataKey, DataSource, Datum, Enumeration } from '../plugins/data-provider'
+import { MODES, RESET_DEVICES } from '../plugins/uplink-command'
 
 // Downlink packets arrive at roughly packet rate, far slower than the 20 ms
 // tick of the local fake generator, so use a wider plot gap threshold.
@@ -61,6 +62,28 @@ export const POWER_OUTPUT_STATUS_ENUM: Enumeration[] = [
   { value: 0, string: 'Disabled' },
   { value: 1, string: 'PowerGood' },
   { value: 2, string: 'PowerBad' },
+]
+
+/**
+ * `NodeHealth` (Self Test node status). PROVISIONAL — only `Healthy` is
+ * confirmed from the previous CLI; the remaining variants/order must be
+ * reconciled with `firmware-common-new::can_bus::messages::node_status::NodeHealth`
+ * (that crate is not vendored here).
+ */
+export const NODE_HEALTH_ENUM: Enumeration[] = [
+  { value: 0, string: 'Healthy' },
+  { value: 1, string: 'Degraded' },
+  { value: 2, string: 'Unhealthy' },
+]
+
+/**
+ * `NodeMode` (Self Test node status). PROVISIONAL — only `Operational` is
+ * confirmed; reconcile with `firmware-common-new ... NodeMode`.
+ */
+export const NODE_MODE_ENUM: Enumeration[] = [
+  { value: 0, string: 'Operational' },
+  { value: 1, string: 'LowPower' },
+  { value: 2, string: 'SelfTest' },
 ]
 
 // ---------------------------------------------------------------------------
@@ -126,22 +149,6 @@ function sig(signal: DataKey): TreeNode {
 // Directory 1 — Send Uplink (commands modeled as signals, §2).
 // ---------------------------------------------------------------------------
 
-/** Reset-device targets (`DeviceToReset`). */
-const RESET_DEVICES: [string, string][] = [
-  ['all', 'All'],
-  ['void_lake', 'Void Lake'],
-  ['amp', 'AMP'],
-  ['amp_out1', 'Amp Out 1'],
-  ['amp_out2', 'Amp Out 2'],
-  ['amp_out3', 'Amp Out 3'],
-  ['amp_out4', 'Amp Out 4'],
-  ['icarus', 'ICARUS'],
-  ['payload_activation_pcb', 'Payload Activation PCB'],
-  ['rocket_wifi', 'Rocket WiFi'],
-  ['ozys', 'OZYS'],
-  ['main_bulkhead_pcb', 'Main Bulkhead PCB'],
-]
-
 /** Build the 3.3V / 5V / 9V overwrite signals for one EPS board. */
 function epsOverwriteSignals(n: 1 | 2): TreeNode[] {
   const p = `uplink_overwrite_eps${n}`
@@ -152,21 +159,17 @@ function epsOverwriteSignals(n: 1 | 2): TreeNode[] {
   ]
 }
 
-const SEND_UPLINK = folder('uplink', 'Send Uplink', [
+export const SEND_UPLINK = folder('uplink', 'Send Uplink', [
   folder('uplink_config', 'Config', [
     sig(num('uplink_config_frequency', 'Frequency', 'MHz', 3, 902, 928)),
     sig(num('uplink_config_power', 'Power', 'dBm', 0, 0, 30)),
   ]),
   sig(num('uplink_target_apogee', 'Target Apogee', 'm', 0, 0, 10000)),
-  sig(flag('uplink_mode_low_power', 'Low Power Mode')),
-  sig(flag('uplink_mode_self_test', 'Self Test Mode')),
-  sig(flag('uplink_mode_armed', 'Armed Mode')),
-  sig(flag('uplink_mode_landed', 'Landed Mode')),
-  sig(flag('uplink_mode_demo', 'Demo Mode')),
+  ...MODES.map((m) => sig(flag(`uplink_mode_${m.key}`, `${m.label} Mode`))),
   folder(
     'uplink_reset',
     'Reset Device',
-    RESET_DEVICES.map(([id, name]) => sig(flag(`uplink_reset_${id}`, name)))
+    RESET_DEVICES.map((d) => sig(flag(`uplink_reset_${d.key}`, d.label)))
   ),
   folder('uplink_overwrite_amp', 'Overwrite AMP', [
     sig(enm('uplink_overwrite_amp_out1', 'Out 1', POWER_OUTPUT_OVERWRITE_ENUM)),
@@ -225,6 +228,19 @@ function epsBoard(n: 1 | 2): TreeNode {
   return folder(p, label, signals)
 }
 
+/**
+ * Self Test node-status signals (health + mode) for one node. Mirrors the
+ * `format_node_status` field in the previous CLI's Self Test packet. The
+ * `rebooted` part of that display reuses the node's existing
+ * `gsd_<prefix>_rebooted_in_last_5s` signal.
+ */
+function nodeSelfTest(prefix: string, label: string): TreeNode[] {
+  return [
+    sig(enm(`gsd_selftest_${prefix}_health`, `${label} Health`, NODE_HEALTH_ENUM)),
+    sig(enm(`gsd_selftest_${prefix}_mode`, `${label} Mode`, NODE_MODE_ENUM)),
+  ]
+}
+
 const GROUND_STATION_DOWNLINK = folder('gsd', 'Ground Station Downlink', [
   // Link Quality — LoRa PacketStatus metrics (now nested under the downlink).
   folder('gsd_link', 'Link Quality', [
@@ -236,9 +252,11 @@ const GROUND_STATION_DOWNLINK = folder('gsd', 'Ground Station Downlink', [
   // GPS & Position
   folder('gsd_gps', 'GPS & Position', [
     sig(num('gsd_num_of_fix_satellites', 'Satellites (fix)', 'count', 0, 0, 31)),
+    sig(flag('gsd_gps_fixed', 'GPS Fixed')),
     sig(flag('gsd_unix_clock_ready', 'Unix Clock Ready')),
     sig(num('gsd_lat', 'Latitude', 'deg', 5, -90, 90)),
     sig(num('gsd_lon', 'Longitude', 'deg', 5, -180, 180)),
+    sig(num('gsd_altitude_asl', 'Altitude ASL', 'm', 1, -100, 7000)),
   ]),
   // Flight Dynamics
   folder('gsd_flight', 'Flight Dynamics', [
@@ -254,8 +272,11 @@ const GROUND_STATION_DOWNLINK = folder('gsd', 'Ground Station Downlink', [
   folder('gsd_power', 'Vehicle Power & Pyro', [
     sig(num('gsd_vl_battery_v', 'VL Battery Voltage', 'V', 2, 2.5, 8.5)),
     sig(num('gsd_shared_battery_v', 'Shared Battery Voltage', 'V', 2, 2.5, 8.5)),
+    sig(flag('gsd_pyro_short_circuit', 'Pyro Short Circuit')),
     sig(flag('gsd_pyro_main_continuity', 'Main Pyro Continuity')),
+    sig(flag('gsd_pyro_main_fire', 'Main Pyro Fire')),
     sig(flag('gsd_pyro_drogue_continuity', 'Drogue Pyro Continuity')),
+    sig(flag('gsd_pyro_drogue_fire', 'Drogue Pyro Fire')),
   ]),
   // AMP (Power Distribution)
   folder('gsd_amp', 'AMP (Power Distribution)', [
@@ -288,10 +309,12 @@ const GROUND_STATION_DOWNLINK = folder('gsd', 'Ground Station Downlink', [
   folder('gsd_ozys1', 'OZYS 1', [
     sig(flag('gsd_ozys1_online', 'OZYS 1 Online')),
     sig(flag('gsd_ozys1_rebooted_in_last_5s', 'OZYS 1 Rebooted (<5 s)')),
+    sig(num('gsd_ozys1_disk_usage', 'OZYS 1 Disk Usage', '%', 0, 0, 100)),
   ]),
   folder('gsd_ozys2', 'OZYS 2', [
     sig(flag('gsd_ozys2_online', 'OZYS 2 Online')),
     sig(flag('gsd_ozys2_rebooted_in_last_5s', 'OZYS 2 Rebooted (<5 s)')),
+    sig(num('gsd_ozys2_disk_usage', 'OZYS 2 Disk Usage', '%', 0, 0, 100)),
   ]),
   // Payload EPS
   folder('gsd_eps', 'Payload EPS', [epsBoard(1), epsBoard(2)]),
@@ -301,6 +324,29 @@ const GROUND_STATION_DOWNLINK = folder('gsd', 'Ground Station Downlink', [
     sig(flag('gsd_payload_activation_pcb_rebooted_in_last_5s', 'Payload Activation PCB Rebooted (<5 s)')),
     sig(flag('gsd_rocket_wifi_online', 'Rocket WiFi Online')),
     sig(flag('gsd_rocket_wifi_rebooted_in_last_5s', 'Rocket WiFi Rebooted (<5 s)')),
+  ]),
+  // Self Test — fields carried only by the SelfTestResult packet.
+  folder('gsd_selftest', 'Self Test', [
+    sig(flag('gsd_selftest_imu_ok', 'IMU OK')),
+    sig(flag('gsd_selftest_baro_ok', 'Baro OK')),
+    sig(flag('gsd_selftest_mag_ok', 'Mag OK')),
+    sig(flag('gsd_selftest_gps_ok', 'GPS OK')),
+    sig(flag('gsd_selftest_sd_ok', 'SD OK')),
+    sig(flag('gsd_selftest_can_bus_ok', 'CAN Bus OK')),
+    ...nodeSelfTest('amp', 'AMP'),
+    sig(flag('gsd_selftest_amp_out1_power_good', 'AMP Out 1 Good')),
+    sig(flag('gsd_selftest_amp_out2_power_good', 'AMP Out 2 Good')),
+    sig(flag('gsd_selftest_amp_out3_power_good', 'AMP Out 3 Good')),
+    sig(flag('gsd_selftest_amp_out4_power_good', 'AMP Out 4 Good')),
+    ...nodeSelfTest('icarus', 'ICARUS'),
+    ...nodeSelfTest('ozys1', 'OZYS 1'),
+    ...nodeSelfTest('ozys2', 'OZYS 2'),
+    ...nodeSelfTest('main_bulkhead', 'Main Bulkhead PCB'),
+    ...nodeSelfTest('drogue_bulkhead', 'Drogue Bulkhead PCB'),
+    ...nodeSelfTest('payload_activation_pcb', 'Payload Activation PCB'),
+    ...nodeSelfTest('rocket_wifi', 'Rocket WiFi'),
+    ...nodeSelfTest('eps1', 'Payload EPS 1'),
+    ...nodeSelfTest('eps2', 'Payload EPS 2'),
   ]),
 ])
 

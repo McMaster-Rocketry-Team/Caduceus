@@ -10,6 +10,9 @@ import {
 } from './plugins/data-provider'
 import { DataSourceSwitcherPlugin } from './plugins/data-source-switcher'
 import { UplinkPanelPlugin } from './plugins/uplink-panel'
+import { UplinkConsolePlugin } from './plugins/uplink-console'
+import { DownlinkConsolePlugin } from './plugins/downlink-console'
+import { DownlinkConditionSetsPlugin } from './plugins/downlink-condition-sets'
 import { RocketTelemetryTreePlugin } from './plugins/rocket-telemetry-tree'
 import { FakeDataGenerator } from './sources/fake-data-generator'
 import { RocketTelemetryGenerator } from './sources/rocket-telemetry'
@@ -36,11 +39,15 @@ darkMq.addEventListener('change', (e) => {
 
 // install openmct plugins
 openmct.install(openmct.plugins.LocalStorage())
-openmct.install(openmct.plugins.MyItems())
 openmct.install(openmct.plugins.UTCTimeSystem())
 openmct.install(openmct.plugins.Clock({ enableClockIndicator: true }))
-openmct.install(openmct.plugins.DisplayLayout())
+openmct.install(openmct.plugins.DisplayLayout({ showAsView: ['summary-widget'] }))
 openmct.install(openmct.plugins.Notebook())
+openmct.install(openmct.plugins.Condition())
+// Priority below the Downlink Condition Sets folder (which uses priority.LOW)
+// so "My Items" sorts beneath it in the tree. Root order is by priority, not
+// install order. First two args are MyItems' own defaults (root name, namespace).
+openmct.install(openmct.plugins.MyItems('My Items', '', openmct.priority.LOW - 1))
 openmct.install(
   openmct.plugins.Conductor({
     menuOptions: [
@@ -64,6 +71,9 @@ openmct.install(
 openmct.install(DataProviderPlugin)
 openmct.install(DataSourceSwitcherPlugin)
 openmct.install(UplinkPanelPlugin)
+openmct.install(UplinkConsolePlugin)
+openmct.install(DownlinkConsolePlugin)
+openmct.install(DownlinkConditionSetsPlugin)
 
 // register layouts here
 openmct.install(AvionicsLayoutPlugin)

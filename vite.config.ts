@@ -10,6 +10,11 @@ const base = process.env.BASE_PATH ?? '/'
 
 export default defineConfig({
   base,
+  optimizeDeps: {
+    // openmct ships a UMD bundle with no ESM exports; force Vite's dep
+    // pre-bundler to convert it to ESM so `import openmct` works in dev.
+    include: ['openmct'],
+  },
   server: {
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin',
@@ -21,6 +26,10 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 100000,
+    commonjsOptions: {
+      include: [/vendor\/openmct/, /node_modules/],
+      transformMixedEsModules: true,
+    },
   },
   plugins: [
     tailwindcss(),
