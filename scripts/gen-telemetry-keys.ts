@@ -49,12 +49,20 @@ const out: string[] = []
 let leafCount = 0
 
 /** Emit a folder as a heading + (optional) signal table, then recurse. */
-function emit(node: Extract<TreeNode, { kind: 'folder' }>, depth: number, path: string[]) {
+function emit(
+  node: Extract<TreeNode, { kind: 'folder' }>,
+  depth: number,
+  path: string[]
+) {
   const here = [...path, node.name]
   out.push('', `${'#'.repeat(depth)} ${here.join(' / ')}`)
   const signals = node.children.filter((c) => c.kind === 'signal')
   if (signals.length > 0) {
-    out.push('', '| Key | Name | Type | Unit | Range | Enum |', '|---|---|---|---|---|---|')
+    out.push(
+      '',
+      '| Key | Name | Type | Unit | Range | Enum |',
+      '|---|---|---|---|---|---|'
+    )
     for (const c of signals) {
       if (c.kind === 'signal') {
         out.push(row(c.signal))

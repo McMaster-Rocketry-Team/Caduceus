@@ -167,7 +167,9 @@ function UplinkPanel() {
   const [apogee, setApogee] = useState('3000')
   const [resetDevice, setResetDevice] = useState<ResetDevice>('All')
   const [ampOverwrites, setAmpOverwrites] = useState<number[]>([0, 0, 0, 0])
-  const [epsOverwrites, setEpsOverwrites] = useState<number[]>([0, 0, 0, 0, 0, 0])
+  const [epsOverwrites, setEpsOverwrites] = useState<number[]>([
+    0, 0, 0, 0, 0, 0,
+  ])
 
   const isSending = feedback.status === 'sending'
 
@@ -234,7 +236,9 @@ function UplinkPanel() {
               onChange={(e) => setApogee(e.target.value)}
               className="w-[110px] rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-[11px] px-2 py-1 outline-none focus:border-blue-500"
             />
-            <span className="text-[11px] text-gray-400 dark:text-gray-500">m</span>
+            <span className="text-[11px] text-gray-400 dark:text-gray-500">
+              m
+            </span>
             <ActionButton
               variant="primary"
               disabled={isSending}
@@ -340,7 +344,9 @@ function UplinkPanel() {
             <ActionButton
               variant="danger"
               disabled={isSending}
-              onClick={() => dispatch({ type: 'FirePyro', pyro: 'PyroMain' }, true)}
+              onClick={() =>
+                dispatch({ type: 'FirePyro', pyro: 'PyroMain' }, true)
+              }
             >
               Fire Main Pyro
             </ActionButton>

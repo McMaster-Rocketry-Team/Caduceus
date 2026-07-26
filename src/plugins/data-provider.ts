@@ -85,7 +85,8 @@ function telemetryValues(dataKey: DataKey): TelemetryValue[] {
   if (dataKey.unit !== undefined) value.unit = dataKey.unit
   if (dataKey.min !== undefined) value.min = dataKey.min
   if (dataKey.max !== undefined) value.max = dataKey.max
-  if (dataKey.enumerations !== undefined) value.enumerations = dataKey.enumerations
+  if (dataKey.enumerations !== undefined)
+    value.enumerations = dataKey.enumerations
 
   return [
     value,

@@ -86,21 +86,41 @@ function fieldView(
   switch (field.kind) {
     case 'value': {
       const text = formatValue(SIGNAL_BY_KEY.get(field.key), values[field.key])
-      return { label: field.label, changeKey: text, highlight: field.highlight, node: text }
+      return {
+        label: field.label,
+        changeKey: text,
+        highlight: field.highlight,
+        node: text,
+      }
     }
     case 'bool': {
       const val = values[field.key]
       const text = val === undefined ? '—' : val === 1 ? 'T' : 'F'
-      return { label: field.label, changeKey: text, highlight: field.highlight, node: text }
+      return {
+        label: field.label,
+        changeKey: text,
+        highlight: field.highlight,
+        node: text,
+      }
     }
     case 'enum': {
       const text = enumLabel(SIGNAL_BY_KEY.get(field.key), values[field.key])
-      return { label: field.label, changeKey: text, highlight: field.highlight, node: text }
+      return {
+        label: field.label,
+        changeKey: text,
+        highlight: field.highlight,
+        node: text,
+      }
     }
     case 'powerStatus': {
       const status = values[field.statusKey]
       const overwrote = values[field.overwroteKey]
-      const prefix = overwrote === undefined ? '' : overwrote === 1 ? 'overwrote, ' : 'auto, '
+      const prefix =
+        overwrote === undefined
+          ? ''
+          : overwrote === 1
+            ? 'overwrote, '
+            : 'auto, '
       const statusText = enumLabel(SIGNAL_BY_KEY.get(field.statusKey), status)
       return {
         label: field.label,
@@ -115,11 +135,22 @@ function fieldView(
       }
     }
     case 'nodeStatus': {
-      const health = enumLabel(SIGNAL_BY_KEY.get(field.healthKey), values[field.healthKey])
-      const mode = enumLabel(SIGNAL_BY_KEY.get(field.modeKey), values[field.modeKey])
+      const health = enumLabel(
+        SIGNAL_BY_KEY.get(field.healthKey),
+        values[field.healthKey]
+      )
+      const mode = enumLabel(
+        SIGNAL_BY_KEY.get(field.modeKey),
+        values[field.modeKey]
+      )
       const rebooted = values[field.rebootedKey] === 1 ? ' rebooted' : ''
       const text = `${health}, ${mode}${rebooted}`
-      return { label: field.label, changeKey: text, highlight: field.highlight, node: text }
+      return {
+        label: field.label,
+        changeKey: text,
+        highlight: field.highlight,
+        node: text,
+      }
     }
   }
 }
@@ -226,8 +257,14 @@ function DownlinkConsole({ openmct }: { openmct: OpenMCT }) {
       ? (autoLayout ?? PACKET_LAYOUTS[0])
       : (PACKET_LAYOUTS.find((l) => l.type === selected) ?? PACKET_LAYOUTS[0])
 
-  const rssi = formatValue(SIGNAL_BY_KEY.get(HEADER_KEYS.rssi), values[HEADER_KEYS.rssi])
-  const snr = formatValue(SIGNAL_BY_KEY.get(HEADER_KEYS.snr), values[HEADER_KEYS.snr])
+  const rssi = formatValue(
+    SIGNAL_BY_KEY.get(HEADER_KEYS.rssi),
+    values[HEADER_KEYS.rssi]
+  )
+  const snr = formatValue(
+    SIGNAL_BY_KEY.get(HEADER_KEYS.snr),
+    values[HEADER_KEYS.snr]
+  )
   const secondsSince = values[HEADER_KEYS.secondsSince]
   const noLivePacket = selected === 'auto' && autoLayout === undefined
 
@@ -238,7 +275,9 @@ function DownlinkConsole({ openmct }: { openmct: OpenMCT }) {
         <select
           value={String(selected)}
           onChange={(e) =>
-            setSelected(e.target.value === 'auto' ? 'auto' : Number(e.target.value))
+            setSelected(
+              e.target.value === 'auto' ? 'auto' : Number(e.target.value)
+            )
           }
           className="rounded border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-[11px] px-2 py-1 outline-none focus:border-blue-500"
         >
@@ -260,7 +299,9 @@ function DownlinkConsole({ openmct }: { openmct: OpenMCT }) {
           </span>
         </span>
         <span className="text-gray-400 dark:text-gray-500 tabular-nums">
-          {secondsSince !== undefined ? `${Math.round(secondsSince)}s ago` : '—'}
+          {secondsSince !== undefined
+            ? `${Math.round(secondsSince)}s ago`
+            : '—'}
         </span>
       </div>
 
@@ -303,7 +344,10 @@ export function DownlinkConsolePlugin(openmct: OpenMCT) {
 
       return {
         show(element: HTMLElement) {
-          unmount = mountReactInShadow(element, <DownlinkConsole openmct={openmct} />)
+          unmount = mountReactInShadow(
+            element,
+            <DownlinkConsole openmct={openmct} />
+          )
         },
         destroy() {
           unmount?.()

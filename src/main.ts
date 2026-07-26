@@ -41,13 +41,17 @@ darkMq.addEventListener('change', (e) => {
 openmct.install(openmct.plugins.LocalStorage())
 openmct.install(openmct.plugins.UTCTimeSystem())
 openmct.install(openmct.plugins.Clock({ enableClockIndicator: true }))
-openmct.install(openmct.plugins.DisplayLayout({ showAsView: ['summary-widget'] }))
+openmct.install(
+  openmct.plugins.DisplayLayout({ showAsView: ['summary-widget'] })
+)
 openmct.install(openmct.plugins.Notebook())
 openmct.install(openmct.plugins.Condition())
 // Priority below the Downlink Condition Sets folder (which uses priority.LOW)
 // so "My Items" sorts beneath it in the tree. Root order is by priority, not
 // install order. First two args are MyItems' own defaults (root name, namespace).
-openmct.install(openmct.plugins.MyItems('My Items', '', openmct.priority.LOW - 1))
+openmct.install(
+  openmct.plugins.MyItems('My Items', '', openmct.priority.LOW - 1)
+)
 openmct.install(
   openmct.plugins.Conductor({
     menuOptions: [

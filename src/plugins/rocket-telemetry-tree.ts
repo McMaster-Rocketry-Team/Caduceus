@@ -76,7 +76,9 @@ export function RocketTelemetryTreePlugin(openmct: OpenMCT) {
       }
       const prefix = 'folder.'
       if (identifier.key.startsWith(prefix)) {
-        return Promise.resolve(folderObject(identifier.key.slice(prefix.length)))
+        return Promise.resolve(
+          folderObject(identifier.key.slice(prefix.length))
+        )
       }
       return Promise.resolve(undefined)
     },

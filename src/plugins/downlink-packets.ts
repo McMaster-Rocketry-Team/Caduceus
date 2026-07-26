@@ -117,12 +117,25 @@ const GPS_BEACON: PacketLayout = {
   type: PACKET_TYPE.GPSBeacon,
   name: 'GPS Beacon',
   lines: [
-    [v('gsd_num_of_fix_satellites', 'satellites'), v('gsd_lat', 'lat'), v('gsd_lon', 'lon')],
-    [v('gsd_altitude_asl', 'altitude asl'), v('gsd_air_temperature', 'air temperature')],
+    [
+      v('gsd_num_of_fix_satellites', 'satellites'),
+      v('gsd_lat', 'lat'),
+      v('gsd_lon', 'lon'),
+    ],
+    [
+      v('gsd_altitude_asl', 'altitude asl'),
+      v('gsd_air_temperature', 'air temperature'),
+    ],
     [v('gsd_vl_battery_v', 'vl battery')],
     [b('gsd_pyro_short_circuit', 'pyro short circuit')],
-    [b('gsd_pyro_main_continuity', 'main continuity'), b('gsd_pyro_main_fire', 'main fire')],
-    [b('gsd_pyro_drogue_continuity', 'drogue continuity'), b('gsd_pyro_drogue_fire', 'drogue fire')],
+    [
+      b('gsd_pyro_main_continuity', 'main continuity'),
+      b('gsd_pyro_main_fire', 'main fire'),
+    ],
+    [
+      b('gsd_pyro_drogue_continuity', 'drogue continuity'),
+      b('gsd_pyro_drogue_fire', 'drogue fire'),
+    ],
   ],
 }
 
@@ -130,9 +143,15 @@ const LOW_POWER: PacketLayout = {
   type: PACKET_TYPE.LowPowerTelemetry,
   name: 'Low Power Telemetry',
   lines: [
-    [b('gsd_gps_fixed', 'gps fixed'), v('gsd_num_of_fix_satellites', 'satellites')],
+    [
+      b('gsd_gps_fixed', 'gps fixed'),
+      v('gsd_num_of_fix_satellites', 'satellites'),
+    ],
     [v('gsd_air_temperature', 'air temperature')],
-    [v('gsd_vl_battery_v', 'vl battery'), v('gsd_shared_battery_v', 'shared battery')],
+    [
+      v('gsd_vl_battery_v', 'vl battery'),
+      v('gsd_shared_battery_v', 'shared battery'),
+    ],
     [b('gsd_amp_online', 'amp online')],
   ],
 }
@@ -141,9 +160,19 @@ const LANDED: PacketLayout = {
   type: PACKET_TYPE.LandedTelemetry,
   name: 'Landed Telemetry',
   lines: [
-    [v('gsd_num_of_fix_satellites', 'satellites'), v('gsd_lat', 'lat'), v('gsd_lon', 'lon')],
-    [v('gsd_vl_battery_v', 'vl battery'), v('gsd_shared_battery_v', 'shared battery')],
-    [b('gsd_amp_online', 'amp online'), b('gsd_amp_rebooted_in_last_5s', 'amp rebooted')],
+    [
+      v('gsd_num_of_fix_satellites', 'satellites'),
+      v('gsd_lat', 'lat'),
+      v('gsd_lon', 'lon'),
+    ],
+    [
+      v('gsd_vl_battery_v', 'vl battery'),
+      v('gsd_shared_battery_v', 'shared battery'),
+    ],
+    [
+      b('gsd_amp_online', 'amp online'),
+      b('gsd_amp_rebooted_in_last_5s', 'amp rebooted'),
+    ],
     [
       ps('gsd_amp_out1', 'amp out 1'),
       ps('gsd_amp_out2', 'amp out 2'),
@@ -169,7 +198,10 @@ const TELEMETRY: PacketLayout = {
       b('gsd_pyro_main_continuity', 'main continuity'),
       b('gsd_pyro_drogue_continuity', 'drogue continuity'),
     ],
-    [v('gsd_air_temperature', 'air temperature'), v('gsd_air_brakes_servo_temp', 'servo temp')],
+    [
+      v('gsd_air_temperature', 'air temperature'),
+      v('gsd_air_brakes_servo_temp', 'servo temp'),
+    ],
     [
       e('gsd_flight_stage', 'state'),
       v('gsd_altitude_agl', 'altitude agl'),
@@ -184,7 +216,10 @@ const TELEMETRY: PacketLayout = {
       v('gsd_air_brakes_commanded_extension_percentage', 'commanded extension'),
       v('gsd_air_brakes_actual_extension_percentage', 'actual extension'),
     ],
-    [b('gsd_amp_online', 'amp online'), b('gsd_amp_rebooted_in_last_5s', 'amp rebooted')],
+    [
+      b('gsd_amp_online', 'amp online'),
+      b('gsd_amp_rebooted_in_last_5s', 'amp rebooted'),
+    ],
     [
       ps('gsd_amp_out1', 'amp out 1'),
       ps('gsd_amp_out2', 'amp out 2'),
@@ -258,7 +293,10 @@ const SELF_TEST: PacketLayout = {
       b('gsd_selftest_sd_ok', 'sd ok'),
       b('gsd_selftest_can_bus_ok', 'can bus ok'),
     ],
-    [b('gsd_pyro_main_continuity', 'main continuity'), b('gsd_pyro_drogue_continuity', 'drogue continuity')],
+    [
+      b('gsd_pyro_main_continuity', 'main continuity'),
+      b('gsd_pyro_drogue_continuity', 'drogue continuity'),
+    ],
     [
       ns('amp', 'amp'),
       b('gsd_selftest_amp_out1_power_good', 'out 1 good'),
@@ -273,8 +311,14 @@ const SELF_TEST: PacketLayout = {
       ns('ozys2', 'ozys 2'),
       v('gsd_ozys2_disk_usage', 'ozys 2 disk'),
     ],
-    [ns('main_bulkhead', 'main bulkhead pcb'), ns('drogue_bulkhead', 'drogue bulkhead pcb')],
-    [ns('payload_activation_pcb', 'payload activation pcb'), ns('rocket_wifi', 'rocket wifi')],
+    [
+      ns('main_bulkhead', 'main bulkhead pcb'),
+      ns('drogue_bulkhead', 'drogue bulkhead pcb'),
+    ],
+    [
+      ns('payload_activation_pcb', 'payload activation pcb'),
+      ns('rocket_wifi', 'rocket wifi'),
+    ],
     [ns('eps1', 'payload eps 1'), ns('eps2', 'payload eps 2')],
   ],
 }

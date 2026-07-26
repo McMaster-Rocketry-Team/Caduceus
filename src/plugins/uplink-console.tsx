@@ -111,10 +111,30 @@ const AMP_OUTPUTS: {
   statusKey: string
   overwroteKey: string
 }[] = [
-  { field: 'out1', label: 'Out 1', statusKey: 'gsd_amp_out1', overwroteKey: 'gsd_amp_out1_overwrote' },
-  { field: 'out2', label: 'Out 2', statusKey: 'gsd_amp_out2', overwroteKey: 'gsd_amp_out2_overwrote' },
-  { field: 'out3', label: 'Out 3', statusKey: 'gsd_amp_out3', overwroteKey: 'gsd_amp_out3_overwrote' },
-  { field: 'out4', label: 'Out 4', statusKey: 'gsd_amp_out4', overwroteKey: 'gsd_amp_out4_overwrote' },
+  {
+    field: 'out1',
+    label: 'Out 1',
+    statusKey: 'gsd_amp_out1',
+    overwroteKey: 'gsd_amp_out1_overwrote',
+  },
+  {
+    field: 'out2',
+    label: 'Out 2',
+    statusKey: 'gsd_amp_out2',
+    overwroteKey: 'gsd_amp_out2_overwrote',
+  },
+  {
+    field: 'out3',
+    label: 'Out 3',
+    statusKey: 'gsd_amp_out3',
+    overwroteKey: 'gsd_amp_out3_overwrote',
+  },
+  {
+    field: 'out4',
+    label: 'Out 4',
+    statusKey: 'gsd_amp_out4',
+    overwroteKey: 'gsd_amp_out4_overwrote',
+  },
 ]
 
 /** EPS rails: staged overwrite field + the downlink keys that read it back. */
@@ -124,12 +144,42 @@ const EPS_RAILS: {
   statusKey: string
   overwroteKey: string
 }[] = [
-  { field: 'eps1_3v3', label: 'EPS 1 · 3.3V', statusKey: 'gsd_eps1_output_3v3_status', overwroteKey: 'gsd_eps1_output_3v3_overwrote' },
-  { field: 'eps1_5v', label: 'EPS 1 · 5V', statusKey: 'gsd_eps1_output_5v_status', overwroteKey: 'gsd_eps1_output_5v_overwrote' },
-  { field: 'eps1_9v', label: 'EPS 1 · 9V', statusKey: 'gsd_eps1_output_9v_status', overwroteKey: 'gsd_eps1_output_9v_overwrote' },
-  { field: 'eps2_3v3', label: 'EPS 2 · 3.3V', statusKey: 'gsd_eps2_output_3v3_status', overwroteKey: 'gsd_eps2_output_3v3_overwrote' },
-  { field: 'eps2_5v', label: 'EPS 2 · 5V', statusKey: 'gsd_eps2_output_5v_status', overwroteKey: 'gsd_eps2_output_5v_overwrote' },
-  { field: 'eps2_9v', label: 'EPS 2 · 9V', statusKey: 'gsd_eps2_output_9v_status', overwroteKey: 'gsd_eps2_output_9v_overwrote' },
+  {
+    field: 'eps1_3v3',
+    label: 'EPS 1 · 3.3V',
+    statusKey: 'gsd_eps1_output_3v3_status',
+    overwroteKey: 'gsd_eps1_output_3v3_overwrote',
+  },
+  {
+    field: 'eps1_5v',
+    label: 'EPS 1 · 5V',
+    statusKey: 'gsd_eps1_output_5v_status',
+    overwroteKey: 'gsd_eps1_output_5v_overwrote',
+  },
+  {
+    field: 'eps1_9v',
+    label: 'EPS 1 · 9V',
+    statusKey: 'gsd_eps1_output_9v_status',
+    overwroteKey: 'gsd_eps1_output_9v_overwrote',
+  },
+  {
+    field: 'eps2_3v3',
+    label: 'EPS 2 · 3.3V',
+    statusKey: 'gsd_eps2_output_3v3_status',
+    overwroteKey: 'gsd_eps2_output_3v3_overwrote',
+  },
+  {
+    field: 'eps2_5v',
+    label: 'EPS 2 · 5V',
+    statusKey: 'gsd_eps2_output_5v_status',
+    overwroteKey: 'gsd_eps2_output_5v_overwrote',
+  },
+  {
+    field: 'eps2_9v',
+    label: 'EPS 2 · 9V',
+    statusKey: 'gsd_eps2_output_9v_status',
+    overwroteKey: 'gsd_eps2_output_9v_overwrote',
+  },
 ]
 
 /** Flight stages that correspond to a commandable mode (for button highlight). */
@@ -322,18 +372,24 @@ function ConfigControl({
     const f = Number(freqText)
     const p = Number(powerText)
     if (!Number.isFinite(f) || !inRange(freq, f)) {
-      alert(`Frequency must be between ${freq.min} and ${freq.max} ${freq.unit}.`)
+      alert(
+        `Frequency must be between ${freq.min} and ${freq.max} ${freq.unit}.`
+      )
       return
     }
     if (!Number.isFinite(p) || !inRange(power, p)) {
-      alert(`Power must be between ${power.min} and ${power.max} ${power.unit}.`)
+      alert(
+        `Power must be between ${power.min} and ${power.max} ${power.unit}.`
+      )
       return
     }
     // No transmit: this is local radio config (CLI saves it to disk and applies
     // on restart). NICK has no config store yet, so just acknowledge locally.
     setFreqEdit(null)
     setPowerEdit(null)
-    setNote(`Saved locally — ${f} ${freq.unit}, ${p} ${power.unit}. Applies on restart.`)
+    setNote(
+      `Saved locally — ${f} ${freq.unit}, ${p} ${power.unit}. Applies on restart.`
+    )
   }
 
   return (
@@ -497,7 +553,11 @@ function ResetControl({
           </option>
         ))}
       </select>
-      <ActionButton variant="primary" disabled={disabled} onClick={() => onSend(device)}>
+      <ActionButton
+        variant="primary"
+        disabled={disabled}
+        onClick={() => onSend(device)}
+      >
         Reset
       </ActionButton>
     </div>
@@ -755,7 +815,10 @@ export function UplinkConsolePlugin(openmct: OpenMCT) {
 
       return {
         show(element: HTMLElement) {
-          unmount = mountReactInShadow(element, <UplinkConsole openmct={openmct} />)
+          unmount = mountReactInShadow(
+            element,
+            <UplinkConsole openmct={openmct} />
+          )
         },
         destroy() {
           unmount?.()

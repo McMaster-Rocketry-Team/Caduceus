@@ -11,7 +11,12 @@
  * Signal `key`s are namespaced by directory (`uplink_`, `gsd_`) because the
  * backend stores one scalar series per key.
  */
-import type { DataKey, DataSource, Datum, Enumeration } from '../plugins/data-provider'
+import type {
+  DataKey,
+  DataSource,
+  Datum,
+  Enumeration,
+} from '../plugins/data-provider'
 import { MODES, RESET_DEVICES } from '../plugins/uplink-command'
 
 // Downlink packets arrive at roughly packet rate, far slower than the 20 ms
@@ -115,7 +120,13 @@ function num(
 
 /** Build a boolean (T/F) signal descriptor, rendered as an enum. */
 function flag(key: string, name: string): DataKey {
-  return { key, name, format: 'enum', enumerations: BOOL_ENUM, gapThreshold: GAP_MS }
+  return {
+    key,
+    name,
+    format: 'enum',
+    enumerations: BOOL_ENUM,
+    gapThreshold: GAP_MS,
+  }
 }
 
 /** Build an enum signal descriptor from one of the {@link Enumeration} tables. */
@@ -199,7 +210,13 @@ function ampOutputSignals(): TreeNode[] {
   const out: TreeNode[] = []
   for (let i = 1; i <= 4; i++) {
     out.push(
-      sig(enm(`gsd_amp_out${i}`, `AMP Output ${i} Status`, POWER_OUTPUT_STATUS_ENUM)),
+      sig(
+        enm(
+          `gsd_amp_out${i}`,
+          `AMP Output ${i} Status`,
+          POWER_OUTPUT_STATUS_ENUM
+        )
+      ),
       sig(flag(`gsd_amp_out${i}_overwrote`, `AMP Output ${i} Overwrote`))
     )
   }
@@ -214,15 +231,57 @@ function epsBoard(n: 1 | 2): TreeNode {
     sig(flag(`${p}_online`, `${label} Online`)),
     sig(flag(`${p}_rebooted_in_last_5s`, `${label} Rebooted (<5 s)`)),
     sig(num(`${p}_battery1_v`, `${label} Battery 1 Voltage`, 'V', 2, 2.0, 4.5)),
-    sig(num(`${p}_battery1_temperature`, `${label} Battery 1 Temp`, '°C', 1, 10, 85)),
+    sig(
+      num(
+        `${p}_battery1_temperature`,
+        `${label} Battery 1 Temp`,
+        '°C',
+        1,
+        10,
+        85
+      )
+    ),
     sig(num(`${p}_battery2_v`, `${label} Battery 2 Voltage`, 'V', 2, 2.0, 4.5)),
-    sig(num(`${p}_battery2_temperature`, `${label} Battery 2 Temp`, '°C', 1, 10, 85)),
+    sig(
+      num(
+        `${p}_battery2_temperature`,
+        `${label} Battery 2 Temp`,
+        '°C',
+        1,
+        10,
+        85
+      )
+    ),
   ]
-  for (const [rail, railLabel] of [['3v3', '3V3'], ['5v', '5V'], ['9v', '9V']] as const) {
+  for (const [rail, railLabel] of [
+    ['3v3', '3V3'],
+    ['5v', '5V'],
+    ['9v', '9V'],
+  ] as const) {
     signals.push(
-      sig(num(`${p}_output_${rail}_current`, `${label} ${railLabel} Output Current`, 'mA', 0, 0, 2000)),
-      sig(enm(`${p}_output_${rail}_status`, `${label} ${railLabel} Output Status`, POWER_OUTPUT_STATUS_ENUM)),
-      sig(flag(`${p}_output_${rail}_overwrote`, `${label} ${railLabel} Output Overwrote`))
+      sig(
+        num(
+          `${p}_output_${rail}_current`,
+          `${label} ${railLabel} Output Current`,
+          'mA',
+          0,
+          0,
+          2000
+        )
+      ),
+      sig(
+        enm(
+          `${p}_output_${rail}_status`,
+          `${label} ${railLabel} Output Status`,
+          POWER_OUTPUT_STATUS_ENUM
+        )
+      ),
+      sig(
+        flag(
+          `${p}_output_${rail}_overwrote`,
+          `${label} ${railLabel} Output Overwrote`
+        )
+      )
     )
   }
   return folder(p, label, signals)
@@ -236,7 +295,9 @@ function epsBoard(n: 1 | 2): TreeNode {
  */
 function nodeSelfTest(prefix: string, label: string): TreeNode[] {
   return [
-    sig(enm(`gsd_selftest_${prefix}_health`, `${label} Health`, NODE_HEALTH_ENUM)),
+    sig(
+      enm(`gsd_selftest_${prefix}_health`, `${label} Health`, NODE_HEALTH_ENUM)
+    ),
     sig(enm(`gsd_selftest_${prefix}_mode`, `${label} Mode`, NODE_MODE_ENUM)),
   ]
 }
@@ -246,12 +307,23 @@ const GROUND_STATION_DOWNLINK = folder('gsd', 'Ground Station Downlink', [
   folder('gsd_link', 'Link Quality', [
     sig(num('gsd_rssi', 'RSSI', 'dBm', 0, -140, 0)),
     sig(num('gsd_snr', 'SNR', 'dB', 0, -20, 20)),
-    sig(num('gsd_seconds_since_received', 'Time Since Last Packet', 's', 0, 0, 120)),
+    sig(
+      num(
+        'gsd_seconds_since_received',
+        'Time Since Last Packet',
+        's',
+        0,
+        0,
+        120
+      )
+    ),
     sig(enm('gsd_packet_type', 'Packet Type', PACKET_TYPE_ENUM)),
   ]),
   // GPS & Position
   folder('gsd_gps', 'GPS & Position', [
-    sig(num('gsd_num_of_fix_satellites', 'Satellites (fix)', 'count', 0, 0, 31)),
+    sig(
+      num('gsd_num_of_fix_satellites', 'Satellites (fix)', 'count', 0, 0, 31)
+    ),
     sig(flag('gsd_gps_fixed', 'GPS Fixed')),
     sig(flag('gsd_unix_clock_ready', 'Unix Clock Ready')),
     sig(num('gsd_lat', 'Latitude', 'deg', 5, -90, 90)),
@@ -271,7 +343,9 @@ const GROUND_STATION_DOWNLINK = folder('gsd', 'Ground Station Downlink', [
   // Vehicle Power & Pyro
   folder('gsd_power', 'Vehicle Power & Pyro', [
     sig(num('gsd_vl_battery_v', 'VL Battery Voltage', 'V', 2, 2.5, 8.5)),
-    sig(num('gsd_shared_battery_v', 'Shared Battery Voltage', 'V', 2, 2.5, 8.5)),
+    sig(
+      num('gsd_shared_battery_v', 'Shared Battery Voltage', 'V', 2, 2.5, 8.5)
+    ),
     sig(flag('gsd_pyro_short_circuit', 'Pyro Short Circuit')),
     sig(flag('gsd_pyro_main_continuity', 'Main Pyro Continuity')),
     sig(flag('gsd_pyro_main_fire', 'Main Pyro Fire')),
@@ -288,22 +362,77 @@ const GROUND_STATION_DOWNLINK = folder('gsd', 'Ground Station Downlink', [
   folder('gsd_bulkheads', 'Bulkheads', [
     folder('gsd_main_bulkhead', 'Main Bulkhead', [
       sig(flag('gsd_main_bulkhead_online', 'Main Bulkhead Online')),
-      sig(flag('gsd_main_bulkhead_rebooted_in_last_5s', 'Main Bulkhead Rebooted (<5 s)')),
-      sig(num('gsd_main_bulkhead_brightness', 'Main Bulkhead Brightness', 'lux', 2, 0, 100000)),
+      sig(
+        flag(
+          'gsd_main_bulkhead_rebooted_in_last_5s',
+          'Main Bulkhead Rebooted (<5 s)'
+        )
+      ),
+      sig(
+        num(
+          'gsd_main_bulkhead_brightness',
+          'Main Bulkhead Brightness',
+          'lux',
+          2,
+          0,
+          100000
+        )
+      ),
     ]),
     folder('gsd_drogue_bulkhead', 'Drogue Bulkhead', [
       sig(flag('gsd_drogue_bulkhead_online', 'Drogue Bulkhead Online')),
-      sig(flag('gsd_drogue_bulkhead_rebooted_in_last_5s', 'Drogue Bulkhead Rebooted (<5 s)')),
-      sig(num('gsd_drogue_bulkhead_brightness', 'Drogue Bulkhead Brightness', 'lux', 2, 0, 100000)),
+      sig(
+        flag(
+          'gsd_drogue_bulkhead_rebooted_in_last_5s',
+          'Drogue Bulkhead Rebooted (<5 s)'
+        )
+      ),
+      sig(
+        num(
+          'gsd_drogue_bulkhead_brightness',
+          'Drogue Bulkhead Brightness',
+          'lux',
+          2,
+          0,
+          100000
+        )
+      ),
     ]),
   ]),
   // ICARUS — Air Brakes
   folder('gsd_icarus', 'ICARUS — Air Brakes', [
     sig(flag('gsd_icarus_online', 'ICARUS Online')),
     sig(flag('gsd_icarus_rebooted_in_last_5s', 'ICARUS Rebooted (<5 s)')),
-    sig(num('gsd_air_brakes_commanded_extension_percentage', 'Air Brakes Commanded Extension', '%', 0, 0, 100)),
-    sig(num('gsd_air_brakes_actual_extension_percentage', 'Air Brakes Actual Extension', '%', 0, 0, 100)),
-    sig(num('gsd_air_brakes_servo_temp', 'Air Brakes Servo Temp', '°C', 1, -10, 85)),
+    sig(
+      num(
+        'gsd_air_brakes_commanded_extension_percentage',
+        'Air Brakes Commanded Extension',
+        '%',
+        0,
+        0,
+        100
+      )
+    ),
+    sig(
+      num(
+        'gsd_air_brakes_actual_extension_percentage',
+        'Air Brakes Actual Extension',
+        '%',
+        0,
+        0,
+        100
+      )
+    ),
+    sig(
+      num(
+        'gsd_air_brakes_servo_temp',
+        'Air Brakes Servo Temp',
+        '°C',
+        1,
+        -10,
+        85
+      )
+    ),
   ]),
   // OZYS strain/data-acquisition nodes
   folder('gsd_ozys1', 'OZYS 1', [
@@ -320,10 +449,19 @@ const GROUND_STATION_DOWNLINK = folder('gsd', 'Ground Station Downlink', [
   folder('gsd_eps', 'Payload EPS', [epsBoard(1), epsBoard(2)]),
   // Avionics Status — remaining node health flags
   folder('gsd_avionics', 'Avionics Status', [
-    sig(flag('gsd_payload_activation_pcb_online', 'Payload Activation PCB Online')),
-    sig(flag('gsd_payload_activation_pcb_rebooted_in_last_5s', 'Payload Activation PCB Rebooted (<5 s)')),
+    sig(
+      flag('gsd_payload_activation_pcb_online', 'Payload Activation PCB Online')
+    ),
+    sig(
+      flag(
+        'gsd_payload_activation_pcb_rebooted_in_last_5s',
+        'Payload Activation PCB Rebooted (<5 s)'
+      )
+    ),
     sig(flag('gsd_rocket_wifi_online', 'Rocket WiFi Online')),
-    sig(flag('gsd_rocket_wifi_rebooted_in_last_5s', 'Rocket WiFi Rebooted (<5 s)')),
+    sig(
+      flag('gsd_rocket_wifi_rebooted_in_last_5s', 'Rocket WiFi Rebooted (<5 s)')
+    ),
   ]),
   // Self Test — fields carried only by the SelfTestResult packet.
   folder('gsd_selftest', 'Self Test', [
@@ -354,7 +492,9 @@ const GROUND_STATION_DOWNLINK = folder('gsd', 'Ground Station Downlink', [
 export const ROCKET_TREE: TreeNode[] = [SEND_UPLINK, GROUND_STATION_DOWNLINK]
 
 /** Flat list of every rocket telemetry signal across the whole tree. */
-export const ROCKET_SIGNALS: DataKey[] = (function flatten(nodes: TreeNode[]): DataKey[] {
+export const ROCKET_SIGNALS: DataKey[] = (function flatten(
+  nodes: TreeNode[]
+): DataKey[] {
   const out: DataKey[] = []
   for (const node of nodes) {
     if (node.kind === 'signal') out.push(node.signal)
@@ -412,7 +552,11 @@ export class RocketTelemetryGenerator implements DataSource {
       const now = Date.now()
       for (let i = 0; i < ROCKET_SIGNALS.length; i++) {
         const signal = ROCKET_SIGNALS[i]
-        onData({ key: signal.key, value: sampleSignal(signal, i, now), timestampMs: now })
+        onData({
+          key: signal.key,
+          value: sampleSignal(signal, i, now),
+          timestampMs: now,
+        })
       }
     }, TICK_MS)
   }

@@ -21,7 +21,10 @@
 export type Mode = 'LowPower' | 'SelfTest' | 'Armed' | 'Landed' | 'Demo'
 
 /** `PowerOutputOverwrite` — per-output override for AMP / EPS overwrite packets. */
-export type PowerOutputOverwrite = 'NoOverwrite' | 'ForceEnabled' | 'ForceDisabled'
+export type PowerOutputOverwrite =
+  | 'NoOverwrite'
+  | 'ForceEnabled'
+  | 'ForceDisabled'
 
 /** `PyroSelect` — which pyro channel `FirePyroPacket` fires. */
 export type PyroSelect = 'PyroMain' | 'PyroDrogue'
@@ -96,7 +99,11 @@ export const MODES: { mode: Mode; key: string; label: string }[] = [
  * Every resettable device, in CLI radio-group order. Matches the firmware
  * `DeviceToReset` enum. `key` builds the `uplink_reset_*` tree leaf.
  */
-export const RESET_DEVICES: { device: DeviceToReset; key: string; label: string }[] = [
+export const RESET_DEVICES: {
+  device: DeviceToReset
+  key: string
+  label: string
+}[] = [
   { device: 'All', key: 'all', label: 'All' },
   { device: 'VoidLake', key: 'void_lake', label: 'Void Lake' },
   { device: 'AMP', key: 'amp', label: 'AMP' },
@@ -105,18 +112,33 @@ export const RESET_DEVICES: { device: DeviceToReset; key: string; label: string 
   { device: 'AMPOut3', key: 'amp_out3', label: 'AMP Out 3' },
   { device: 'AMPOut4', key: 'amp_out4', label: 'AMP Out 4' },
   { device: 'Icarus', key: 'icarus', label: 'ICARUS' },
-  { device: 'PayloadActivationPCB', key: 'payload_activation_pcb', label: 'Payload Activation PCB' },
+  {
+    device: 'PayloadActivationPCB',
+    key: 'payload_activation_pcb',
+    label: 'Payload Activation PCB',
+  },
   { device: 'RocketWifi', key: 'rocket_wifi', label: 'Rocket WiFi' },
   { device: 'OzysAll', key: 'ozys', label: 'OZYS (All)' },
-  { device: 'MainBulkhead', key: 'main_bulkhead_pcb', label: 'Main Bulkhead PCB' },
-  { device: 'DrogueBulkhead', key: 'drogue_bulkhead', label: 'Drogue Bulkhead PCB' },
+  {
+    device: 'MainBulkhead',
+    key: 'main_bulkhead_pcb',
+    label: 'Main Bulkhead PCB',
+  },
+  {
+    device: 'DrogueBulkhead',
+    key: 'drogue_bulkhead',
+    label: 'Drogue Bulkhead PCB',
+  },
   { device: 'PayloadEPS1', key: 'payload_eps1', label: 'EPS 1' },
   { device: 'PayloadEPS2', key: 'payload_eps2', label: 'EPS 2' },
   { device: 'AeroRust', key: 'aero_rust', label: 'AeroRust' },
 ]
 
 /** The three power-output overwrite choices, in CLI radio order. */
-export const OVERWRITE_OPTIONS: { value: PowerOutputOverwrite; label: string }[] = [
+export const OVERWRITE_OPTIONS: {
+  value: PowerOutputOverwrite
+  label: string
+}[] = [
   { value: 'NoOverwrite', label: 'No Overwrite' },
   { value: 'ForceEnabled', label: 'Enable' },
   { value: 'ForceDisabled', label: 'Disable' },
@@ -130,9 +152,10 @@ const DEVICE_LABEL: Record<DeviceToReset, string> = Object.fromEntries(
   RESET_DEVICES.map((d) => [d.device, d.label])
 ) as Record<DeviceToReset, string>
 
-const OVERWRITE_LABEL: Record<PowerOutputOverwrite, string> = Object.fromEntries(
-  OVERWRITE_OPTIONS.map((o) => [o.value, o.label])
-) as Record<PowerOutputOverwrite, string>
+const OVERWRITE_LABEL: Record<PowerOutputOverwrite, string> =
+  Object.fromEntries(
+    OVERWRITE_OPTIONS.map((o) => [o.value, o.label])
+  ) as Record<PowerOutputOverwrite, string>
 
 /** Default (cleared) overwrite — no output is forced. */
 export const NO_OVERWRITE: PowerOutputOverwrite = 'NoOverwrite'
@@ -152,7 +175,9 @@ function summarizeOverwrites(
 ): string {
   const forced = fields.filter(([, v]) => v !== NO_OVERWRITE)
   if (forced.length === 0) return 'clear all overwrites'
-  return forced.map(([label, v]) => `${label}: ${OVERWRITE_LABEL[v]}`).join(', ')
+  return forced
+    .map(([label, v]) => `${label}: ${OVERWRITE_LABEL[v]}`)
+    .join(', ')
 }
 
 /** Human-readable one-line description used for confirm prompts and feedback. */

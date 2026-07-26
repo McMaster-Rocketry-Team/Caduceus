@@ -24,14 +24,20 @@ export function mountReactInShadow(
   element: HTMLElement,
   component: ReactNode
 ): () => void {
-  const shadow = element.attachShadow({ mode: 'open' })
+  // attachShadow throws if the element already hosts a shadow tree, and a
+  // shadow root can never be detached. OpenMCT reuses view container elements
+  // across show()/destroy() cycles, so reuse an existing root when present.
+  const shadow = element.shadowRoot ?? element.attachShadow({ mode: 'open' })
   shadow.adoptedStyleSheets = [sheet]
 
   const mountPoint = document.createElement('div')
-  shadow.appendChild(mountPoint)
+  shadow.replaceChildren(mountPoint)
 
   const root = createRoot(mountPoint)
   root.render(component)
 
-  return () => root.unmount()
+  return () => {
+    root.unmount()
+    mountPoint.remove()
+  }
 }
